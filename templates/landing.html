@@ -2,63 +2,100 @@
 
 {% block title %}Spendly — Track Every Rupee{% endblock %}
 
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+{% endblock %}
+
 {% block content %}
 
-<section class="hero">
-    <div class="hero-inner">
-        <div class="hero-badge">Personal Finance Tracker</div>
-        <h1 class="hero-title">
-            Know where your<br>
-            <em>money goes</em>
+<section class="hero-new">
+    <div class="hero-new-inner">
+        <div class="hero-new-badge">
+            <span class="hero-new-badge-dot"></span>
+            Free to use &middot; No credit card needed
+        </div>
+        <h1 class="hero-new-title">
+            Track every rupee.<br>
+            <span class="hero-new-title-accent">Know where it goes.</span>
         </h1>
-        <p class="hero-subtitle">
-            Log expenses, understand your spending patterns,
-            and take control of your financial life —
-            one transaction at a time.
+        <p class="hero-new-subtitle">
+            Spendy helps you log expenses, spot patterns, and stay on budget —
+            without the spreadsheet headache.
         </p>
-        <div class="hero-actions">
-            <a href="{{ url_for('register') }}" class="btn-primary">Start tracking free</a>
-            <a href="{{ url_for('login') }}" class="btn-ghost">Sign in</a>
+        <div class="hero-new-actions">
+            <a href="{{ url_for('register') }}" class="hero-new-btn-primary">Create free account</a>
+            <a href="#" class="hero-new-btn-ghost">See how it works</a>
         </div>
     </div>
-    <div class="hero-visual">
-        <div class="mock-card">
-            <div class="mock-card-header">
-                <span class="mock-label">March 2026</span>
-                <span class="mock-total">₹12,450</span>
+
+    <div class="hero-new-mockup">
+        <div class="hero-new-window">
+            <div class="hero-new-window-bar">
+                <div class="hero-new-window-dots">
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <div class="hero-new-window-url">
+                    <span class="hero-new-window-url-dot"></span>
+                    spendy.app/dashboard
+                </div>
+                <div class="hero-new-window-brand">
+                    <span class="hero-new-window-brand-dot"></span>
+                    Spendy
+                </div>
             </div>
-            <div class="mock-bars">
-                <div class="mock-bar-row">
-                    <span class="mock-cat">Bills</span>
-                    <div class="mock-bar-track">
-                        <div class="mock-bar" style="width: 72%"></div>
+            <div class="hero-new-window-body">
+                <div class="hero-new-stats">
+                    <div class="hero-new-stat">
+                        <span class="hero-new-stat-label">This month</span>
+                        <span class="hero-new-stat-value">Rs18,240</span>
+                        <span class="hero-new-stat-tag hero-new-stat-tag-bad">&#9650; +12% vs last</span>
                     </div>
-                    <span class="mock-amt">₹4,500</span>
+                    <div class="hero-new-stat">
+                        <span class="hero-new-stat-label">Budget left</span>
+                        <span class="hero-new-stat-value">Rs6,760</span>
+                        <span class="hero-new-stat-tag hero-new-stat-tag-good">&#9660; 43% remaining</span>
+                    </div>
+                    <div class="hero-new-stat">
+                        <span class="hero-new-stat-label">Transactions</span>
+                        <span class="hero-new-stat-value">34</span>
+                        <span class="hero-new-stat-sub">this month</span>
+                    </div>
                 </div>
-                <div class="mock-bar-row">
-                    <span class="mock-cat">Food</span>
-                    <div class="mock-bar-track">
-                        <div class="mock-bar mock-bar-2" style="width: 52%"></div>
+                <div class="hero-new-category-card">
+                    <h3 class="hero-new-category-title">Spending by category</h3>
+                    <div class="hero-new-cat-row">
+                        <span class="hero-new-cat-dot hero-new-cat-dot-food"></span>
+                        <span class="hero-new-cat-label">Food</span>
+                        <div class="hero-new-cat-track">
+                            <div class="hero-new-cat-bar hero-new-cat-bar-food" style="width: 72%"></div>
+                        </div>
+                        <span class="hero-new-cat-pct">72%</span>
                     </div>
-                    <span class="mock-amt">₹3,200</span>
-                </div>
-                <div class="mock-bar-row">
-                    <span class="mock-cat">Health</span>
-                    <div class="mock-bar-track">
-                        <div class="mock-bar mock-bar-3" style="width: 33%"></div>
+                    <div class="hero-new-cat-row">
+                        <span class="hero-new-cat-dot hero-new-cat-dot-travel"></span>
+                        <span class="hero-new-cat-label">Travel</span>
+                        <div class="hero-new-cat-track">
+                            <div class="hero-new-cat-bar hero-new-cat-bar-travel" style="width: 58%"></div>
+                        </div>
+                        <span class="hero-new-cat-pct">58%</span>
                     </div>
-                    <span class="mock-amt">₹2,050</span>
-                </div>
-                <div class="mock-bar-row">
-                    <span class="mock-cat">Transport</span>
-                    <div class="mock-bar-track">
-                        <div class="mock-bar mock-bar-4" style="width: 28%"></div>
+                    <div class="hero-new-cat-row">
+                        <span class="hero-new-cat-dot hero-new-cat-dot-bills"></span>
+                        <span class="hero-new-cat-label">Bills</span>
+                        <div class="hero-new-cat-track">
+                            <div class="hero-new-cat-bar hero-new-cat-bar-bills" style="width: 45%"></div>
+                        </div>
+                        <span class="hero-new-cat-pct">45%</span>
                     </div>
-                    <span class="mock-amt">₹1,800</span>
                 </div>
             </div>
         </div>
     </div>
+
+    <p class="hero-new-footnote">No spreadsheets. No stress. Just clarity on where your money goes.</p>
 </section>
 
 <section class="features">
