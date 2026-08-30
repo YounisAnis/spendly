@@ -73,6 +73,40 @@ def init_db():
         conn.close()
 
 
+def get_user_by_email(email):
+    """Return the user row for an email, or None when no account exists.
+
+    Emails are stored lowercased by create_user(), so callers should lowercase
+    the value they look up.
+    """
+    conn = get_db()
+    try:
+        return conn.execute(
+            "SELECT * FROM users WHERE email = ?", (email,)
+        ).fetchone()
+    finally:
+        conn.close()
+
+
+def create_user(name, email, password):
+    """Hash the password, insert the account and return its new id.
+
+    The plain password is taken rather than a hash so no caller can store one
+    by mistake. A duplicate email raises sqlite3.IntegrityError from the UNIQUE
+    constraint.
+    """
+    conn = get_db()
+    try:
+        cursor = conn.execute(
+            "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+            (name, email, generate_password_hash(password)),
+        )
+        conn.commit()
+        return cursor.lastrowid
+    finally:
+        conn.close()
+
+
 def seed_db():
     """Insert the demo user and sample expenses once.
 
