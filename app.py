@@ -1,10 +1,13 @@
+import os
 import sqlite3
 
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for
+from werkzeug.security import check_password_hash
 
 from database.db import create_user, get_db, get_user_by_email, init_db, seed_db
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "dev-only-insecure-key-do-not-ship")
 
 
 # ------------------------------------------------------------------ #
@@ -14,6 +17,11 @@ app = Flask(__name__)
 with app.app_context():
     init_db()
     seed_db()
+
+
+@app.context_processor
+def inject_is_logged_in():
+    return {"is_logged_in": session.get("user_id") is not None}
 
 
 # ------------------------------------------------------------------ #
@@ -54,6 +62,9 @@ def landing():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    if session.get("user_id") is not None:
+        return redirect(url_for("landing"))
+
     if request.method == "GET":
         return render_template("register.html")
 
@@ -82,11 +93,30 @@ def register():
     return redirect(url_for("login", registered=1))
 
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    return render_template(
-        "login.html", registered=request.args.get("registered") == "1"
-    )
+    if session.get("user_id") is not None:
+        return redirect(url_for("landing"))
+
+    if request.method == "GET":
+        return render_template(
+            "login.html", registered=request.args.get("registered") == "1"
+        )
+
+    email = request.form.get("email", "").strip().lower()
+    # Never stripped: spaces are legitimate password characters.
+    password = request.form.get("password", "")
+
+    user = get_user_by_email(email)
+    # One generic message for every failure case — missing fields, unknown
+    # email, wrong password — so the form never reveals which was wrong.
+    if user is None or not password or not check_password_hash(user["password_hash"], password):
+        flash("Invalid email or password.")
+        return render_template("login.html", email=email)
+
+    session.clear()
+    session["user_id"] = user["id"]
+    return redirect(url_for("landing"))
 
 
 @app.route("/terms")
@@ -105,7 +135,8 @@ def privacy():
 
 @app.route("/logout")
 def logout():
-    return "Logout — coming in Step 3"
+    session.clear()
+    return redirect(url_for("landing"))
 
 
 @app.route("/profile")
