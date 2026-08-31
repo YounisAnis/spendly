@@ -961,3 +961,154 @@ a { color: inherit; text-decoration: none; }
     .hero-new-window-bar { flex-wrap: wrap; row-gap: 0.5rem; }
     .hero-new-cat-row { grid-template-columns: 14px 60px 1fr 40px; }
 }
+
+/* ------------------------------------------------------------------ */
+/* Profile page                                                        */
+/* ------------------------------------------------------------------ */
+
+.profile-section {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 3rem 2rem 5rem;
+}
+
+.profile-columns {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+/* .hero-new-cat-row is shared with landing.html, where the card sits inside
+   a narrow browser-mockup window. Placed in the narrower profile-columns
+   track, that same 80px label column is still too tight for "Entertainment"
+   and the 1fr track reads as a near-empty bar, so it's scoped up for this
+   page only. */
+.profile-section .hero-new-cat-row {
+    grid-template-columns: 16px 110px 1fr 42px;
+}
+
+.profile-section .hero-new-cat-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.profile-avatar {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-name {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--ink);
+    margin-bottom: 0.35rem;
+}
+
+.profile-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+.profile-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+}
+
+.profile-table-wrap {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.table thead th {
+    text-align: left;
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    white-space: nowrap;
+}
+
+.table tbody td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-soft);
+    color: var(--ink-soft);
+    white-space: nowrap;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table tbody tr:hover {
+    background: var(--paper-warm);
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.badge-food { background: #fef3c7; color: #b45309; }
+.badge-transport { background: #dbeafe; color: #1d4ed8; }
+.badge-bills { background: #ede9fe; color: #6d28d9; }
+.badge-health { background: var(--accent-light); color: var(--accent); }
+.badge-entertainment { background: #f3e8f0; color: #8b5e83; }
+.badge-shopping { background: var(--accent-2-light); color: var(--accent-2); }
+.badge-other { background: var(--border-soft); color: var(--ink-muted); }
+
+.hero-new-cat-dot-transport { background: #3b82f6; }
+.hero-new-cat-bar-transport { background: linear-gradient(to right, #3b82f6, #8b5cf6); }
+.hero-new-cat-dot-health { background: var(--accent); }
+.hero-new-cat-bar-health { background: var(--accent); }
+.hero-new-cat-dot-entertainment { background: #8b5e83; }
+.hero-new-cat-bar-entertainment { background: #8b5e83; }
+.hero-new-cat-dot-shopping { background: var(--accent-2); }
+.hero-new-cat-bar-shopping { background: var(--accent-2); }
+.hero-new-cat-dot-other { background: var(--ink-faint); }
+.hero-new-cat-bar-other { background: var(--ink-faint); }
+
+@media (max-width: 900px) {
+    .profile-columns { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+    .profile-section { padding: 2rem 1rem 3rem; }
+    .profile-header { flex-direction: column; align-items: flex-start; text-align: left; }
+    .profile-section .hero-new-cat-row { grid-template-columns: 14px 80px 1fr 40px; }
+}

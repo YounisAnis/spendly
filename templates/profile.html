@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Profile — Spendly{% endblock %}
+
+{% block content %}
+
+<section class="profile-section">
+
+    <div class="profile-header">
+        <div class="profile-avatar">{{ user.initials }}</div>
+        <div class="profile-header-info">
+            <h1 class="profile-name">{{ user.name }}</h1>
+            <div class="profile-meta">
+                <span class="profile-meta-item">
+                    <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                         stroke-linejoin="round" aria-hidden="true">
+                        <!-- lucide: user-round -->
+                        <circle cx="12" cy="8" r="5"/>
+                        <path d="M20 21a8 8 0 0 0-16 0"/>
+                    </svg>
+                    {{ user.email }}
+                </span>
+                <span class="profile-meta-item">
+                    <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                         stroke-linejoin="round" aria-hidden="true">
+                        <!-- lucide: calendar -->
+                        <path d="M8 2v4"/>
+                        <path d="M16 2v4"/>
+                        <rect width="18" height="18" x="3" y="4" rx="2"/>
+                        <path d="M3 10h18"/>
+                    </svg>
+                    Member since {{ user.member_since }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero-new-stats">
+        <div class="hero-new-stat">
+            <span class="hero-new-stat-label">Total Spent</span>
+            <span class="hero-new-stat-value">{{ stats.total_spent }}</span>
+        </div>
+        <div class="hero-new-stat">
+            <span class="hero-new-stat-label">Transactions</span>
+            <span class="hero-new-stat-value">{{ stats.transaction_count }}</span>
+        </div>
+        <div class="hero-new-stat">
+            <span class="hero-new-stat-label">Top Category</span>
+            <span class="hero-new-stat-value">{{ stats.top_category }}</span>
+        </div>
+    </div>
+
+    <div class="profile-columns">
+        <div class="auth-card">
+            <h3 class="hero-new-category-title">Recent Transactions</h3>
+            <div class="profile-table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for txn in transactions %}
+                        <tr>
+                            <td>{{ txn.date }}</td>
+                            <td>{{ txn.description }}</td>
+                            <td><span class="badge badge-{{ txn.category|lower }}">{{ txn.category }}</span></td>
+                            <td>{{ txn.amount }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="hero-new-category-card">
+            <h3 class="hero-new-category-title">
+                <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                     stroke-linejoin="round" aria-hidden="true">
+                    <!-- lucide: pie-chart -->
+                    <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+                    <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+                </svg>
+                Category Breakdown
+            </h3>
+            {% for cat in categories %}
+            <div class="hero-new-cat-row">
+                <span class="hero-new-cat-dot hero-new-cat-dot-{{ cat.variant }}"></span>
+                <span class="hero-new-cat-label">{{ cat.name }}</span>
+                <div class="hero-new-cat-track">
+                    <div class="hero-new-cat-bar hero-new-cat-bar-{{ cat.variant }}" style="width: {{ cat.pct }}%"></div>
+                </div>
+                <span class="hero-new-cat-pct">{{ cat.pct }}%</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</section>
+
+{% endblock %}
