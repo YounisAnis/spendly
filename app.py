@@ -6,6 +6,11 @@ from flask import Flask, flash, redirect, render_template, request, session, url
 from werkzeug.security import check_password_hash
 
 from database.db import create_user, get_db, get_user_by_email, init_db, seed_db
+from database.queries import (
+    get_category_breakdown,
+    get_recent_transactions,
+    get_summary_stats,
+)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-only-insecure-key-do-not-ship")
@@ -164,28 +169,9 @@ def profile():
         "email": session.get("user_email", ""),
         "member_since": member_since,
     }
-    stats = {
-        "total_spent": "Rs9,530",
-        "transaction_count": 8,
-        "top_category": "Food",
-    }
-    transactions = [
-        {"date": "Aug 21", "description": "Grocery run", "category": "Food", "amount": "Rs1,250"},
-        {"date": "Aug 18", "description": "Winter jacket", "category": "Shopping", "amount": "Rs2,200"},
-        {"date": "Aug 15", "description": "Cinema tickets", "category": "Entertainment", "amount": "Rs750"},
-        {"date": "Aug 12", "description": "Monthly medication", "category": "Health", "amount": "Rs900"},
-        {"date": "Aug 09", "description": "Electricity bill", "category": "Bills", "amount": "Rs3,500"},
-        {"date": "Aug 06", "description": "Fuel top-up", "category": "Transport", "amount": "Rs300"},
-    ]
-    categories = [
-        {"name": "Bills", "amount": "Rs3,500", "pct": 37, "variant": "bills"},
-        {"name": "Shopping", "amount": "Rs2,200", "pct": 23, "variant": "shopping"},
-        {"name": "Food", "amount": "Rs1,250", "pct": 13, "variant": "food"},
-        {"name": "Health", "amount": "Rs900", "pct": 9, "variant": "health"},
-        {"name": "Entertainment", "amount": "Rs750", "pct": 8, "variant": "entertainment"},
-        {"name": "Transport", "amount": "Rs300", "pct": 3, "variant": "transport"},
-        {"name": "Other", "amount": "Rs150", "pct": 2, "variant": "other"},
-    ]
+    stats = get_summary_stats(session["user_id"])
+    transactions = get_recent_transactions(session["user_id"])
+    categories = get_category_breakdown(session["user_id"])
 
     return render_template(
         "profile.html",

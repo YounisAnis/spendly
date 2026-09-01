@@ -1103,6 +1103,12 @@ a { color: inherit; text-decoration: none; }
 .hero-new-cat-dot-other { background: var(--ink-faint); }
 .hero-new-cat-bar-other { background: var(--ink-faint); }
 
+.profile-empty {
+    color: var(--ink-muted);
+    text-align: center;
+    padding: 1.5rem 0;
+}
+
 @media (max-width: 900px) {
     .profile-columns { grid-template-columns: 1fr; }
 }

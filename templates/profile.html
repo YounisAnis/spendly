@@ -66,6 +66,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% if transactions %}
                         {% for txn in transactions %}
                         <tr>
                             <td>{{ txn.date }}</td>
@@ -74,6 +75,11 @@
                             <td>{{ txn.amount }}</td>
                         </tr>
                         {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="profile-empty">No transactions yet — add your first expense to see it here.</td>
+                        </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
@@ -90,6 +96,7 @@
                 </svg>
                 Category Breakdown
             </h3>
+            {% if categories %}
             {% for cat in categories %}
             <div class="hero-new-cat-row">
                 <span class="hero-new-cat-dot hero-new-cat-dot-{{ cat.variant }}"></span>
@@ -100,6 +107,9 @@
                 <span class="hero-new-cat-pct">{{ cat.pct }}%</span>
             </div>
             {% endfor %}
+            {% else %}
+            <p class="profile-empty">No expenses yet — your category breakdown will appear here once you add one.</p>
+            {% endif %}
         </div>
     </div>
 
