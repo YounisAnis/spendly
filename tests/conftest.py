@@ -1,59 +1,105 @@
-"""Shared pytest fixtures: an isolated SQLite DB and a Flask test client.
+"""Shared pytest fixtures for the Spendly test suite.
 
-app.py bootstraps the database (init_db() + seed_db()) as soon as it is
-imported, reading database.db.DB_PATH — a module-level constant computed at
-import time. To keep tests off the real expense_tracker.db, DB_PATH has to
-be monkeypatched to a temp file *before* app.py's bootstrap code runs, which
-means before app.py is (re-)imported.
+Spendly's DB layer (database/db.py) does not read a Flask config key — it opens
+every connection against a module-level `DB_PATH` constant. `app.py` also runs
+`init_db()` and `seed_db()` once, at import time, against whatever `DB_PATH`
+is current. To keep tests fully isolated from the real `expense_tracker.db`
+file (and from each other), `DB_PATH` is redirected to a throwaway file
+*before* `app` is imported for the first time, and then re-pointed to a fresh
+empty temp file for every individual test via the `app` fixture below.
 """
-
-import importlib
 import os
-import sys
+import tempfile
 
 import pytest
 
-# Make sure "app" and "database" are importable regardless of the directory
-# pytest was invoked from.
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
+import database.db as db_module
 
-import database.db as db_module  # noqa: E402
+# Redirect DB_PATH before the first `import app`, so app.py's module-level
+# `with app.app_context(): init_db(); seed_db()` never touches the real DB.
+_bootstrap_fd, _bootstrap_path = tempfile.mkstemp(suffix=".db")
+os.close(_bootstrap_fd)
+db_module.DB_PATH = _bootstrap_path
 
-
-@pytest.fixture
-def app(tmp_path, monkeypatch):
-    """A Flask app wired to a fresh, seeded, temporary SQLite file."""
-    db_path = tmp_path / "test_expense_tracker.db"
-    monkeypatch.setattr(db_module, "DB_PATH", str(db_path))
-
-    # Force a fresh import so app.py's module-level init_db()/seed_db()
-    # bootstrap runs against the patched DB_PATH, not a cached module whose
-    # bootstrap already ran against the real database.
-    sys.modules.pop("app", None)
-    app_module = importlib.import_module("app")
-    app_module.app.config.update(TESTING=True)
-
-    yield app_module.app
-
-    sys.modules.pop("app", None)
+from app import app as flask_app  # noqa: E402
+from database.db import get_db, get_user_by_email, init_db  # noqa: E402
 
 
 @pytest.fixture
-def demo_user(app):
-    """The seeded demo user's row (id, name, email, created_at, ...)."""
-    from database.db import get_user_by_email
+def app(monkeypatch):
+    """The Spendly Flask app, wired to a fresh, empty SQLite file per test."""
+    fd, db_path = tempfile.mkstemp(suffix=".db")
+    os.close(fd)
+    monkeypatch.setattr(db_module, "DB_PATH", db_path)
 
-    return get_user_by_email("demo@spendly.com")
+    flask_app.config.update(TESTING=True, SECRET_KEY="test-secret")
+
+    with flask_app.app_context():
+        init_db()
+
+    yield flask_app
+
+    try:
+        os.remove(db_path)
+    except OSError:
+        pass
 
 
 @pytest.fixture
-def auth_client(client, demo_user):
-    """A test client already logged in as the seeded demo user."""
-    with client.session_transaction() as sess:
-        sess["user_id"] = demo_user["id"]
-        sess["user_name"] = demo_user["name"]
-        sess["user_email"] = demo_user["email"]
-        sess["user_created_at"] = demo_user["created_at"]
+def client(app):
+    return app.test_client()
+
+
+@pytest.fixture
+def registered_user(app, client):
+    """Register a brand-new user (not logged in) and return id/email/password."""
+    email = "filtertest@example.com"
+    password = "testpass123"
+    resp = client.post(
+        "/register",
+        data={"name": "Filter Test", "email": email, "password": password},
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200, "Setup failed: registration request did not succeed"
+
+    user = get_user_by_email(email)
+    assert user is not None, "Setup failed: registration did not create a user"
+    return {"id": user["id"], "email": email, "password": password}
+
+
+@pytest.fixture
+def auth_client(client, registered_user):
+    """A test client already logged in as `registered_user`."""
+    resp = client.post(
+        "/login",
+        data={"email": registered_user["email"], "password": registered_user["password"]},
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200, "Setup failed: login request did not succeed"
     return client
+
+
+@pytest.fixture
+def insert_expense(app):
+    """Return a callable that inserts one expense row directly into the DB.
+
+    `/expenses/add` is a not-yet-implemented stub (Step 7), so tests that need
+    fixture expense data must write rows directly, using the same parameterised
+    SQL style as the rest of the codebase.
+    """
+
+    def _insert(user_id, amount, category, expense_date, description=None):
+        conn = get_db()
+        try:
+            conn.execute(
+                """
+                INSERT INTO expenses (user_id, amount, category, date, description)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (user_id, amount, category, expense_date, description),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+
+    return _insert

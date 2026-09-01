@@ -37,6 +37,40 @@
         </div>
     </div>
 
+    <div class="filter-bar">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          <div class="auth-error filter-bar-error">{{ messages[0] }}</div>
+          {% endif %}
+        {% endwith %}
+
+        <div class="filter-bar-row">
+            <div class="filter-presets">
+                {% for preset in filters.presets %}
+                <a href="{{ url_for('profile', date_from=preset.date_from, date_to=preset.date_to) }}"
+                   class="filter-chip{% if filters.active == preset.key %} filter-chip-active{% endif %}">
+                    {{ preset.label }}
+                </a>
+                {% endfor %}
+            </div>
+
+            <form method="GET" action="{{ url_for('profile') }}"
+                  class="filter-custom-form{% if filters.active == 'custom' %} filter-custom-active{% endif %}">
+                <div class="filter-custom-field">
+                    <label for="date_from">From</label>
+                    <input type="date" id="date_from" name="date_from" class="form-input"
+                           value="{{ filters.date_from }}">
+                </div>
+                <div class="filter-custom-field">
+                    <label for="date_to">To</label>
+                    <input type="date" id="date_to" name="date_to" class="form-input"
+                           value="{{ filters.date_to }}">
+                </div>
+                <button type="submit" class="btn-primary filter-apply-btn">Apply</button>
+            </form>
+        </div>
+    </div>
+
     <div class="hero-new-stats">
         <div class="hero-new-stat">
             <span class="hero-new-stat-label">Total Spent</span>
