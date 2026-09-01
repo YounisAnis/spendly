@@ -1,4 +1,3 @@
-
 ---
 name: spendly-frontend-ui
 description: Use this skill for any UI or frontend work on Spendly, the personal expense tracker at github.com/YounisAnis/spendly. Trigger it whenever the user says "design the ___ page", "create UI for ___", "build a component for ___", "redesign / improve ___", "add a modal / form / card / table to ___", or names any file under templates/, static/css/, or static/js/. It produces production-ready Flask + Jinja2 + vanilla CSS + vanilla JS output that matches Spendly's existing design system exactly, with Lucide inline-SVG icons. Do NOT use this skill for backend logic, database schema, auth rules, or non-Spendly projects.
@@ -14,7 +13,7 @@ Write the code → Verify against the design system → Report what changed.
 
 ---
 
-##  1. Stack contract (non-negotiable)
+## 1. Stack contract (non-negotiable)
 
 | Layer     | What Spendly uses                                                                     | Never introduce                                                 |
 | --------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
@@ -29,7 +28,7 @@ stylesheet — append to it, do not create siblings.
 
 ---
 
-##  2. Repository map
+## 2. Repository map
 
 ```
 spendly/
@@ -58,7 +57,7 @@ copies `landing.html`.
 
 ---
 
-##  3. Design system (read from `style.css`, do not invent)
+## 3. Design system (read from `style.css`, do not invent)
 
 ### Design direction
 
@@ -146,7 +145,7 @@ the repo already uses it).
 
 ---
 
-##  4. Icon system
+## 4. Icon system
 
 Lucide, delivered as **inline SVG** in the template. Inline SVG is preferred over the
 CDN `<script>` because the repo's own rule is "no page libraries or dependencies".
@@ -204,7 +203,7 @@ not clarify the action or the data, leave it out.
 
 ---
 
-##  5. Workflow
+## 5. Workflow
 
 ### Step 1 — Read before writing
 
@@ -245,7 +244,7 @@ user still has to wire up (route, template variable, query).
 
 ---
 
-##  6. Output contract
+## 6. Output contract
 
 Every response from this skill contains these four parts, in order.
 
@@ -263,7 +262,7 @@ card layout, colors and shadows against the tokens above.
 
 ---
 
-##  7. Interaction patterns (reuse verbatim)
+## 7. Interaction patterns (reuse verbatim)
 
 ### Modal — the established pattern
 
@@ -307,7 +306,7 @@ it. Never ship a bare empty `<table>`.
 
 ---
 
-##  8. Screens waiting to be built
+## 8. Screens waiting to be built
 
 `app.py` already declares these routes as placeholders. When one of them comes up, this
 is the data available.
@@ -332,7 +331,7 @@ format as `Rs 12,450` and set figures in `--font-display`.
 
 ---
 
-##  9. Definition of done
+## 9. Definition of done
 
 - [ ] Template extends `base.html` and sets a `{% block title %}`
 - [ ] Every color, font, radius and width comes from a CSS variable
@@ -349,7 +348,7 @@ format as `Rs 12,450` and set figures in `--font-display`.
 
 ---
 
-##  10. Avoid
+## 10. Avoid
 
 Generic or dated UI — bevels, gradient buttons, heavy borders, drop-shadow stacks,
 default browser form styling. Unstructured code dumps with no structure brief.
@@ -359,7 +358,7 @@ template variables or DB columns that do not exist — name what is missing inst
 
 ---
 
-##  11. Repo conventions to respect
+## 11. Repo conventions to respect
 
 Spendly is built through spec-driven feature branches: `feature/<slug>`, spec in
 `.claude/specs/NN-<slug>.md`, plan in `.claude/plans/NN-<slug>.md`, then implement,
@@ -370,7 +369,7 @@ Commit messages are scope-prefixed and lowercase: `landing: add privacy policy p
 
 ---
 
-##  12. Extending this skill
+## 12. Extending this skill
 
 Keep this file the single source of truth for Spendly's frontend. When the project
 changes: add new tokens to §3 only after they exist in `style.css`; add a row to the icon
