@@ -1,6 +1,7 @@
 import os
 import sqlite3
-from datetime import datetime
+from calendar import monthrange
+from datetime import date, datetime
 
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash
@@ -55,6 +56,27 @@ def _validate_registration(name, email, password):
         return "Password must be at least 8 characters."
 
     return None
+
+
+def _parse_date_arg(value):
+    """Parse an ISO YYYY-MM-DD string; return a date, or None if absent/malformed."""
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+
+def _shift_months(d, months):
+    """Return `d` shifted back by whole `months`, clamping the day to fit the
+    resulting month (e.g. Aug 31 - 6 months -> Feb 28/29).
+    """
+    total = d.month - 1 - months
+    year = d.year + total // 12
+    month = total % 12 + 1
+    day = min(d.day, monthrange(year, month)[1])
+    return date(year, month, day)
 
 
 # ------------------------------------------------------------------ #
@@ -169,9 +191,74 @@ def profile():
         "email": session.get("user_email", ""),
         "member_since": member_since,
     }
-    stats = get_summary_stats(session["user_id"])
-    transactions = get_recent_transactions(session["user_id"])
-    categories = get_category_breakdown(session["user_id"])
+
+    date_from = _parse_date_arg(request.args.get("date_from"))
+    date_to = _parse_date_arg(request.args.get("date_to"))
+
+    if date_from and date_to and date_from > date_to:
+        flash("Start date must be before end date.")
+        date_from = date_to = None
+
+    # A lone bound (one parsed, the other absent/malformed) is not a usable
+    # range — normalise to fully unfiltered so the query helpers and the
+    # active-filter state stay in sync.
+    if not (date_from and date_to):
+        date_from = date_to = None
+
+    date_from_iso = date_from.isoformat() if date_from else None
+    date_to_iso = date_to.isoformat() if date_to else None
+
+    today = date.today()
+    preset_bounds = {
+        "this_month": (today.replace(day=1).isoformat(), today.isoformat()),
+        "last_3_months": (_shift_months(today, 3).isoformat(), today.isoformat()),
+        "last_6_months": (_shift_months(today, 6).isoformat(), today.isoformat()),
+    }
+
+    if date_from_iso is None and date_to_iso is None:
+        active_preset = "all_time"
+    else:
+        active_preset = next(
+            (
+                key
+                for key, bounds in preset_bounds.items()
+                if bounds == (date_from_iso, date_to_iso)
+            ),
+            "custom",
+        )
+
+    filters = {
+        "date_from": date_from_iso or "",
+        "date_to": date_to_iso or "",
+        "active": active_preset,
+        "presets": [
+            {
+                "key": "this_month",
+                "label": "This Month",
+                "date_from": preset_bounds["this_month"][0],
+                "date_to": preset_bounds["this_month"][1],
+            },
+            {
+                "key": "last_3_months",
+                "label": "Last 3 Months",
+                "date_from": preset_bounds["last_3_months"][0],
+                "date_to": preset_bounds["last_3_months"][1],
+            },
+            {
+                "key": "last_6_months",
+                "label": "Last 6 Months",
+                "date_from": preset_bounds["last_6_months"][0],
+                "date_to": preset_bounds["last_6_months"][1],
+            },
+            {"key": "all_time", "label": "All Time", "date_from": None, "date_to": None},
+        ],
+    }
+
+    stats = get_summary_stats(session["user_id"], date_from_iso, date_to_iso)
+    transactions = get_recent_transactions(
+        session["user_id"], date_from=date_from_iso, date_to=date_to_iso
+    )
+    categories = get_category_breakdown(session["user_id"], date_from_iso, date_to_iso)
 
     return render_template(
         "profile.html",
@@ -179,6 +266,7 @@ def profile():
         stats=stats,
         transactions=transactions,
         categories=categories,
+        filters=filters,
     )
 
 

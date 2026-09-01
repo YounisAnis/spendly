@@ -19,23 +19,29 @@ def _format_currency(amount):
     return f"Rs{(amount or 0):,.2f}"
 
 
-def get_recent_transactions(user_id, limit=10):
+def get_recent_transactions(user_id, limit=10, date_from=None, date_to=None):
     """Return the user's most recent expenses, newest first.
 
     Each item: {"date": "Aug 21", "description": str, "category": str,
     "amount": "Rs1,250.00"}. Empty-state (no expenses): [].
+
+    When both date_from and date_to are given (inclusive ISO YYYY-MM-DD
+    bounds), only expenses in that range are returned.
     """
+    date_clause = " AND date BETWEEN ? AND ?" if date_from and date_to else ""
+    date_params = (date_from, date_to) if date_from and date_to else ()
+
     conn = get_db()
     try:
         rows = conn.execute(
-            """
+            f"""
             SELECT amount, category, date, description
             FROM expenses
-            WHERE user_id = ?
+            WHERE user_id = ?{date_clause}
             ORDER BY date DESC, created_at DESC
             LIMIT ?
             """,
-            (user_id, limit),
+            (user_id, *date_params, limit),
         ).fetchall()
     finally:
         conn.close()
@@ -51,33 +57,39 @@ def get_recent_transactions(user_id, limit=10):
     ]
 
 
-def get_summary_stats(user_id):
+def get_summary_stats(user_id, date_from=None, date_to=None):
     """Return {"total_spent", "transaction_count", "top_category"}.
 
     Empty-state (no expenses): total_spent formatted zero, count 0,
     top_category "—".
+
+    When both date_from and date_to are given (inclusive ISO YYYY-MM-DD
+    bounds), stats are computed only over expenses in that range.
     """
+    date_clause = " AND date BETWEEN ? AND ?" if date_from and date_to else ""
+    date_params = (date_from, date_to) if date_from and date_to else ()
+
     conn = get_db()
     try:
         totals = conn.execute(
-            """
+            f"""
             SELECT COALESCE(SUM(amount), 0) AS total, COUNT(*) AS cnt
             FROM expenses
-            WHERE user_id = ?
+            WHERE user_id = ?{date_clause}
             """,
-            (user_id,),
+            (user_id, *date_params),
         ).fetchone()
 
         top = conn.execute(
-            """
+            f"""
             SELECT category
             FROM expenses
-            WHERE user_id = ?
+            WHERE user_id = ?{date_clause}
             GROUP BY category
             ORDER BY SUM(amount) DESC
             LIMIT 1
             """,
-            (user_id,),
+            (user_id, *date_params),
         ).fetchone()
     finally:
         conn.close()
@@ -89,24 +101,30 @@ def get_summary_stats(user_id):
     }
 
 
-def get_category_breakdown(user_id):
+def get_category_breakdown(user_id, date_from=None, date_to=None):
     """Return per-category totals for the user, largest amount first.
 
     Each item: {"name": str, "amount": "Rs...", "pct": int, "variant": str}.
     pct values are integers that sum to exactly 100 (rounding remainder
     absorbed by the largest category). Empty-state (no expenses): [].
+
+    When both date_from and date_to are given (inclusive ISO YYYY-MM-DD
+    bounds), only expenses in that range are included.
     """
+    date_clause = " AND date BETWEEN ? AND ?" if date_from and date_to else ""
+    date_params = (date_from, date_to) if date_from and date_to else ()
+
     conn = get_db()
     try:
         rows = conn.execute(
-            """
+            f"""
             SELECT category, SUM(amount) AS total
             FROM expenses
-            WHERE user_id = ?
+            WHERE user_id = ?{date_clause}
             GROUP BY category
             ORDER BY total DESC
             """,
-            (user_id,),
+            (user_id, *date_params),
         ).fetchall()
     finally:
         conn.close()
