@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics — Spendly{% endblock %}
+
+{% block content %}
+
+<section class="coming-soon-section">
+    <div class="coming-soon-card">
+        <div class="coming-soon-arc coming-soon-arc-1"></div>
+        <div class="coming-soon-arc coming-soon-arc-2"></div>
+
+        <div class="coming-soon-logo">
+            <span class="coming-soon-logo-icon">
+                <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <!-- lucide: bar-chart-3 -->
+                    <path d="M3 3v18h18"/>
+                    <path d="M18 17V9"/>
+                    <path d="M13 17V5"/>
+                    <path d="M8 17v-3"/>
+                </svg>
+            </span>
+            <span class="coming-soon-logo-name">Spendly</span>
+        </div>
+
+        <div class="coming-soon-slides" id="coming-soon-slides">
+
+            <div class="coming-soon-slide" data-slide="0">
+                <span class="coming-soon-badge">Coming Soon</span>
+                <h1 class="coming-soon-title">
+                    See your spending,<br>
+                    <em>at a glance.</em>
+                </h1>
+                <p class="coming-soon-subtitle">
+                    Analytics brings visual insights, trends, and smart breakdowns
+                    to help you understand exactly where your money goes.
+                </p>
+                <div class="coming-soon-tags">
+                    <span class="coming-soon-tag">Spending Trends</span>
+                    <span class="coming-soon-tag">Category Insights</span>
+                    <span class="coming-soon-tag">Monthly Reports</span>
+                    <span class="coming-soon-tag">Smart Charts</span>
+                </div>
+            </div>
+
+            <div class="coming-soon-slide" data-slide="1" hidden>
+                <div class="coming-soon-icon-badge">
+                    <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <!-- lucide: clock -->
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </div>
+                <p class="coming-soon-eyebrow">Launching in</p>
+                <h2 class="coming-soon-heading">November 2026</h2>
+                <div class="coming-soon-countdown" data-countdown="2026-11-01T00:00:00">
+                    <div class="coming-soon-count-unit">
+                        <div class="coming-soon-count-box" data-unit="days">00</div>
+                        <span class="coming-soon-count-label">Days</span>
+                    </div>
+                    <span class="coming-soon-count-sep">:</span>
+                    <div class="coming-soon-count-unit">
+                        <div class="coming-soon-count-box" data-unit="hours">00</div>
+                        <span class="coming-soon-count-label">Hours</span>
+                    </div>
+                    <span class="coming-soon-count-sep">:</span>
+                    <div class="coming-soon-count-unit">
+                        <div class="coming-soon-count-box" data-unit="minutes">00</div>
+                        <span class="coming-soon-count-label">Mins</span>
+                    </div>
+                    <span class="coming-soon-count-sep">:</span>
+                    <div class="coming-soon-count-unit">
+                        <div class="coming-soon-count-box" data-unit="seconds">00</div>
+                        <span class="coming-soon-count-label">Secs</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="coming-soon-slide" data-slide="2" hidden>
+                <div class="coming-soon-icon-badge">
+                    <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <!-- lucide: mail -->
+                        <rect width="20" height="16" x="2" y="4" rx="2"/>
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                    </svg>
+                </div>
+                <h2 class="coming-soon-heading">Join the Waitlist</h2>
+                <p class="coming-soon-eyebrow-muted">Be first to know when Analytics launches.</p>
+
+                <form class="coming-soon-form" id="waitlist-form">
+                    <input type="email" id="waitlist-email-input" class="form-input"
+                           placeholder="your@email.com" required>
+                    <button type="submit" class="btn-submit">Notify Me</button>
+                </form>
+                <p class="coming-soon-form-note" id="waitlist-form-note">No spam. Unsubscribe anytime.</p>
+
+                <div class="coming-soon-success" id="waitlist-success" hidden>
+                    <div class="coming-soon-success-icon">
+                        <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <!-- lucide: check -->
+                            <path d="M20 6 9 17l-5-5"/>
+                        </svg>
+                    </div>
+                    <p class="coming-soon-success-title">You're on the list!</p>
+                    <p class="coming-soon-success-body">
+                        We'll notify <span id="waitlist-success-email"></span> at launch.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="coming-soon-nav">
+            <div class="coming-soon-dots" id="coming-soon-dots">
+                <button type="button" class="coming-soon-dot is-active" data-goto="0" aria-label="Go to slide 1"></button>
+                <button type="button" class="coming-soon-dot" data-goto="1" aria-label="Go to slide 2"></button>
+                <button type="button" class="coming-soon-dot" data-goto="2" aria-label="Go to slide 3"></button>
+            </div>
+            <p class="coming-soon-tagline">We're crafting something special</p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll('#coming-soon-slides .coming-soon-slide'));
+    var dots = Array.prototype.slice.call(document.querySelectorAll('#coming-soon-dots .coming-soon-dot'));
+
+    function goTo(index) {
+        slides.forEach(function (slide, i) {
+            slide.hidden = i !== index;
+        });
+        dots.forEach(function (dot, i) {
+            dot.classList.toggle('is-active', i === index);
+        });
+    }
+
+    dots.forEach(function (dot) {
+        dot.addEventListener('click', function () {
+            goTo(parseInt(dot.dataset.goto, 10));
+        });
+    });
+
+    var countdownEl = document.querySelector('[data-countdown]');
+    if (countdownEl) {
+        var target = new Date(countdownEl.dataset.countdown).getTime();
+        var dayEl = countdownEl.querySelector('[data-unit="days"]');
+        var hourEl = countdownEl.querySelector('[data-unit="hours"]');
+        var minEl = countdownEl.querySelector('[data-unit="minutes"]');
+        var secEl = countdownEl.querySelector('[data-unit="seconds"]');
+
+        function pad(n) {
+            return String(n).padStart(2, '0');
+        }
+
+        function tick() {
+            var diff = Math.max(0, target - Date.now());
+            dayEl.textContent = pad(Math.floor(diff / 86400000));
+            hourEl.textContent = pad(Math.floor((diff / 3600000) % 24));
+            minEl.textContent = pad(Math.floor((diff / 60000) % 60));
+            secEl.textContent = pad(Math.floor((diff / 1000) % 60));
+        }
+
+        tick();
+        setInterval(tick, 1000);
+    }
+
+    var waitlistForm = document.getElementById('waitlist-form');
+    if (waitlistForm) {
+        waitlistForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var email = document.getElementById('waitlist-email-input').value.trim();
+            if (!email) return;
+
+            document.getElementById('waitlist-success-email').textContent = email;
+            waitlistForm.hidden = true;
+            document.getElementById('waitlist-form-note').hidden = true;
+            document.getElementById('waitlist-success').hidden = false;
+        });
+    }
+})();
+</script>
+{% endblock %}
