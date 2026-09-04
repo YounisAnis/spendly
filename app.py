@@ -1,3 +1,4 @@
+import math
 import os
 import sqlite3
 from calendar import monthrange
@@ -6,11 +7,12 @@ from datetime import date, datetime
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash
 
-from database.db import create_user, get_db, get_user_by_email, init_db, seed_db
+from database.db import CATEGORIES, create_user, get_db, get_user_by_email, init_db, seed_db
 from database.queries import (
     get_category_breakdown,
     get_recent_transactions,
     get_summary_stats,
+    insert_expense,
 )
 
 app = Flask(__name__)
@@ -54,6 +56,40 @@ def _validate_registration(name, email, password):
 
     if len(password) < 8:
         return "Password must be at least 8 characters."
+
+    return None
+
+
+def _validate_expense(amount, category, expense_date, description):
+    """Return an error message for the first broken rule, or None if valid.
+
+    Expects `amount`, `category`, `expense_date` as stripped strings from the
+    form. `description` is accepted but has no format rule to check.
+    """
+    if not amount or not category or not expense_date:
+        return "Amount, category and date are required."
+
+    try:
+        amount_value = float(amount)
+    except ValueError:
+        return "Amount must be a number."
+
+    if not math.isfinite(amount_value):
+        return "Amount must be a finite number."
+
+    if amount_value <= 0:
+        return "Amount must be greater than 0."
+
+    if category not in CATEGORIES:
+        return "Please choose a valid category."
+
+    try:
+        datetime.strptime(expense_date, "%Y-%m-%d")
+    except ValueError:
+        return "Please enter a valid date."
+
+    if len(description) > 200:
+        return "Description must be 200 characters or fewer."
 
     return None
 
@@ -278,9 +314,44 @@ def analytics():
     return render_template("analytics.html")
 
 
-@app.route("/expenses/add")
+@app.route("/expenses/add", methods=["GET", "POST"])
 def add_expense():
-    return "Add expense — coming in Step 7"
+    if session.get("user_id") is None:
+        return redirect(url_for("login"))
+
+    if request.method == "GET":
+        return render_template(
+            "add_expense.html",
+            categories=CATEGORIES,
+            date=date.today().isoformat(),
+        )
+
+    amount = request.form.get("amount", "").strip()
+    category = request.form.get("category", "").strip()
+    expense_date = request.form.get("date", "").strip()
+    description = request.form.get("description", "").strip()
+
+    error = _validate_expense(amount, category, expense_date, description)
+
+    if error:
+        return render_template(
+            "add_expense.html",
+            categories=CATEGORIES,
+            error=error,
+            amount=amount,
+            category=category,
+            date=expense_date,
+            description=description,
+        )
+
+    insert_expense(
+        session["user_id"],
+        float(amount),
+        category,
+        expense_date,
+        description or None,
+    )
+    return redirect(url_for("profile"))
 
 
 @app.route("/expenses/<int:id>/edit")
