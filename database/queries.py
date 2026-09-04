@@ -1,4 +1,4 @@
-"""Read-only query helpers for the profile page.
+"""Query helpers for reading and writing expense data.
 
 Every function opens its own connection via get_db(), runs a parameterised
 query against `expenses`/`users`, and closes the connection before
@@ -152,3 +152,24 @@ def get_category_breakdown(user_id, date_from=None, date_to=None):
         }
         for row, pct in zip(rows, pcts)
     ]
+
+
+def insert_expense(user_id, amount, category, date, description):
+    """Insert a new expense row and return its new id.
+
+    `description` should already be normalised by the caller (stripped,
+    blank -> None) so the column stores SQL NULL rather than an empty string.
+    """
+    conn = get_db()
+    try:
+        cursor = conn.execute(
+            """
+            INSERT INTO expenses (user_id, amount, category, date, description)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (user_id, amount, category, date, description),
+        )
+        conn.commit()
+        return cursor.lastrowid
+    finally:
+        conn.close()

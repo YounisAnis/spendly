@@ -88,7 +88,19 @@
 
     <div class="profile-columns">
         <div class="auth-card">
-            <h3 class="hero-new-category-title">Recent Transactions</h3>
+            <div class="profile-table-header">
+                <h3 class="hero-new-category-title">Recent Transactions</h3>
+                <a href="{{ url_for('add_expense') }}" class="btn-primary profile-add-expense-btn">
+                    <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                         stroke-linejoin="round" aria-hidden="true">
+                        <!-- lucide: plus -->
+                        <path d="M5 12h14"/>
+                        <path d="M12 5v14"/>
+                    </svg>
+                    Add Expense
+                </a>
+            </div>
             <div class="profile-table-wrap">
                 <table class="table">
                     <thead>
